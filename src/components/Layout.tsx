@@ -81,7 +81,8 @@ const Layout = ({ children }: LayoutProps) => {
     </>
   );
 
-  if (!user) return null;
+  // Em modo público, renderiza mesmo sem usuário
+  if (!user && !PUBLIC_MODE) return null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -98,40 +99,38 @@ const Layout = ({ children }: LayoutProps) => {
               <SheetContent side="left" className="w-64 bg-card/95 backdrop-blur-xl">
                 <div className="flex flex-col gap-2 mt-8">
                   <NavigationContent />
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="mr-2 h-5 w-5" />
-                    Sair
-                  </Button>
+                  {!PUBLIC_MODE && user && (
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="mr-2 h-5 w-5" />
+                      Sair
+                    </Button>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>
             
             <div className="flex items-center gap-2">
-            -              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-glow">
-            -                <Monitor className="w-5 h-5 text-white" />
-            -              </div>
-            -              <span className="font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            -                COSTAO JCVISION PLAY
-            -              </span>
-            +              <img src="/logo-costao.png" alt="Costão JCVision" className="h-10 w-auto" />
+              <img src="/logo-costao.png" alt="Costão JCVision" className="h-10 w-auto" />
             </div>
           </div>
 
           <div className="hidden md:flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">{user.email}</span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-              className="border-border/50 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Sair
-            </Button>
+            {user && <span className="text-sm text-muted-foreground">{user.email}</span>}
+            {!PUBLIC_MODE && user && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="border-border/50 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Sair
+              </Button>
+            )}
           </div>
         </div>
       </header>
