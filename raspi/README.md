@@ -101,3 +101,24 @@ Por fim, limpe o perfil do Chromium se houver estado antigo:
 rm -rf /home/pi/.kiosk-profile
 mkdir -p /home/pi/.kiosk-profile
 ```
+
+## Setup automatizado (Pi 3)
+
+Para automatizar toda a configuração do Raspberry Pi 3, use o script:
+
+```bash
+# Copie para o Pi (exemplo):
+scp raspi/setup-pi3.sh pi@<IP_DO_PI>:/home/pi/
+
+# Execute com permissões de superusuário:
+sudo bash /home/pi/setup-pi3.sh --hostname CS-RSP-TERIVA \
+  --url "https://jc-vision-play.vercel.app/player/c5dc8d9fef4bdf859b1a887e566f5c89"
+```
+
+O script irá:
+- Instalar pacotes (`chromium-browser`, `xserver-xorg`, `x11-xserver-utils`, `unclutter`, `raspi-config`).
+- Definir o hostname.
+- Habilitar Desktop Autologin (para garantir que o X esteja ativo).
+- Ajustar `/boot/config.txt` para HDMI estável e comentar `vc4-fkms-v3d` se presente.
+- Desativar screen blanking e ocultar cursor no LXDE.
+- Instalar e iniciar o serviço `kiosk` específico para Pi 3.
