@@ -40,6 +40,7 @@ const App = () => (
           <Route path="/screens" element={<Screens />} />
           <Route path="/preview/:id" element={<Preview />} />
           <Route path="/player/:playerKey" element={<Player />} />
+          <Route path="/p/:playerKey" element={<Player />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/logs" element={<Logs />} />

@@ -24,6 +24,8 @@ interface Screen {
   assigned_playlist: string | null;
   last_seen: string | null;
   created_at: string;
+  notification_emails?: string[];
+  webhook_url?: string | null;
 }
 
 const Screens = () => {
@@ -332,6 +334,28 @@ const Screens = () => {
   const getPlayerUrl = (playerKey: string) => {
     return `${window.location.origin}/player/${playerKey}`;
   };
+  const getShortPlayerUrl = (playerKey: string) => {
+    return `${window.location.origin}/p/${playerKey}`;
+  };
+
+  const handleUpdateNotifications = async (screenId: string, emailsStr: string, webhookUrl: string) => {
+    try {
+      const emails = emailsStr
+        .split(',')
+        .map((e) => e.trim())
+        .filter((e) => e.length > 0);
+      const { error } = await supabase
+        .from('screens')
+        .update({ notification_emails: emails, webhook_url: webhookUrl || null })
+        .eq('id', screenId);
+      if (error) throw error;
+      toast.success('Notificações atualizadas');
+      fetchData();
+    } catch (error) {
+      console.error('Error updating notifications:', error);
+      toast.error('Erro ao atualizar notificações');
+    }
+  };
 
   return (
     <Layout>
@@ -466,6 +490,84 @@ const Screens = () => {
                         <Copy className="h-4 w-4" />
                       </Button>
                     </div>
+                    <Label className="text-xs text-muted-foreground mt-3">
+                      URL Completa
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={getPlayerUrl(screen.player_key)}
+                        readOnly
+                        className="bg-secondary/50 text-xs font-mono"
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => navigator.clipboard.writeText(getPlayerUrl(screen.player_key))}
+                        className="border-border/50 shrink-0"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <Label className="text-xs text-muted-foreground mt-3">
+                      URL Curta
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={getShortPlayerUrl(screen.player_key)}
+                        readOnly
+                        className="bg-secondary/50 text-xs font-mono"
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => navigator.clipboard.writeText(getShortPlayerUrl(screen.player_key))}
+                        className="border-border/50 shrink-0"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <Label className="text-xs text-muted-foreground mt-3">
+                      E-mails para notificação (separados por vírgula)
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        defaultValue={(screen.notification_emails || []).join(', ')}
+                        className="bg-secondary/50 text-xs"
+                        onBlur={(e) => handleUpdateNotifications(screen.id, e.currentTarget.value, screen.webhook_url || '')}
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-border/50"
+                        onClick={(e) => {
+                          const input = (e.currentTarget.previousSibling as HTMLInputElement);
+                          handleUpdateNotifications(screen.id, input.value, screen.webhook_url || '');
+                        }}
+                      >
+                        Salvar
+                      </Button>
+                    </div>
+                    <Label className="text-xs text-muted-foreground mt-3">
+                      Webhook URL
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        defaultValue={screen.webhook_url || ''}
+                        className="bg-secondary/50 text-xs"
+                        onBlur={(e) => handleUpdateNotifications(screen.id, (screen.notification_emails || []).join(', '), e.currentTarget.value)}
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-border/50"
+                        onClick={(e) => {
+                          const input = (e.currentTarget.previousSibling as HTMLInputElement);
+                          handleUpdateNotifications(screen.id, (screen.notification_emails || []).join(', '), input.value);
+                        }}
+                      >
+                        Salvar
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -499,10 +601,10 @@ const Screens = () => {
                     variant="outline"
                     size="sm"
                     className="w-full border-border/50"
-                    onClick={() => window.open(getPlayerUrl(screen.player_key), "_blank")}
+                    onClick={() => window.open(getShortPlayerUrl(screen.player_key), "_blank")}
                   >
                     <ExternalLink className="mr-2 h-4 w-4" />
-                    Abrir Player
+                    Abrir Player (URL curta)
                   </Button>
                 </CardContent>
               </Card>
