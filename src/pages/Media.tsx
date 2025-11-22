@@ -29,6 +29,7 @@ const Media = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const MAX_UPLOAD_MB = parseInt(import.meta.env.VITE_MAX_UPLOAD_MB || '70');
 
   useEffect(() => {
     fetchMedia();
@@ -68,6 +69,12 @@ const Media = () => {
 
     if (!file) {
       toast.error("Selecione um arquivo");
+      setUploading(false);
+      return;
+    }
+
+    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
+      toast.error(`Arquivo acima de ${MAX_UPLOAD_MB}MB`);
       setUploading(false);
       return;
     }
@@ -219,12 +226,12 @@ const Media = () => {
               </Button>
             </DialogTrigger>
             <DialogContent className="bg-card/95 backdrop-blur-xl border-border/50">
-              <DialogHeader>
-                <DialogTitle>Enviar Mídia</DialogTitle>
-                <DialogDescription>
-                  Faça upload de imagens ou vídeos
-                </DialogDescription>
-              </DialogHeader>
+                <DialogHeader>
+                  <DialogTitle>Enviar Mídia</DialogTitle>
+                  <DialogDescription>
+                  Faça upload de imagens ou vídeos (até {MAX_UPLOAD_MB}MB)
+                  </DialogDescription>
+                </DialogHeader>
               <form onSubmit={handleUpload} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="file">Arquivo</Label>
